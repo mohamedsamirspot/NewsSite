@@ -83,25 +83,25 @@ namespace NewsSite.Repository
             }
             return query;
         }
-        public List<T> GetAll(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
-        {
-            IQueryable<T> query = _db.Set<T>();
+        //public List<T> GetAll(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
+        //{
+        //    IQueryable<T> query = _db.Set<T>();
 
-            if (filter != null)
-            {
-                query = query.Where(filter);
-            }
+        //    if (filter != null)
+        //    {
+        //        query = query.Where(filter);
+        //    }
 
-            if (includeProperties != null)
-            {
-                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    query = query.Include(includeProp);
-                }
-            }
-            return query.ToList();
+        //    if (includeProperties != null)
+        //    {
+        //        foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+        //        {
+        //            query = query.Include(includeProp);
+        //        }
+        //    }
+        //    return query.ToList();
 
-        }
+        //}
         public async Task RemoveAsync(T entity)
         {
             _db.Set<T>().Remove(entity);
