@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NewsSite;
 using NewsSite.Data;
+using NewsSite.Repository.IRepostiory;
+using NewsSite.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +17,8 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddIdentity<IdentityUser, IdentityRole> (options => options.SignIn.RequireConfirmedAccount = false).AddDefaultTokenProviders()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<INewsRepository, NewsRepository>();
 
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 

@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting.Internal;
 using NewsSite.Data;
 using NewsSite.Models;
 using NewsSite.Models.ViewModels;
+using NewsSite.Repository.IRepostiory;
 using NewsSite.Utility;
 
 namespace NewsSite.Areas.Admin.Controllers
@@ -19,24 +22,26 @@ namespace NewsSite.Areas.Admin.Controllers
     [Authorize(Roles = SD.Admin)]
     public class NewsController : Controller
     {
-        private readonly ApplicationDbContext _db;
         private readonly IWebHostEnvironment _hostingEnvironment;
 
         [TempData]
         public string StatusMessage { get; set; }
 
-        public NewsController(ApplicationDbContext db, IWebHostEnvironment hostingEnvironment)
-        {
-            _db = db;
-            _hostingEnvironment = hostingEnvironment;
 
+        private readonly INewsRepository _dbNews;
+        private readonly ICategoryRepository _dbCategory;
+        public NewsController(INewsRepository dbNews, ICategoryRepository dbCategory, IWebHostEnvironment hostingEnvironment)
+        {
+            _dbNews = dbNews;
+            _dbCategory = dbCategory;
+            _hostingEnvironment = hostingEnvironment;
         }
+
 
         //Get INDEX
         public async Task<IActionResult> Index()
         {
-
-            var news = await _db.News.Include(s=>s.Category).ToListAsync();
+            var news = await _dbNews.GetAllAsync(includeProperties: "Category");
             return View(news);
         }
 
@@ -45,8 +50,8 @@ namespace NewsSite.Areas.Admin.Controllers
         {
             NewsAndCategoryViewModel model = new NewsAndCategoryViewModel()
             {
-                CategoryList = await _db.Category.ToListAsync(),
-                News = new Models.News(),            
+                CategoryList = await _dbCategory.GetAllAsync(),
+                News = new Models.News(),
             };
 
             return View(model);
@@ -59,23 +64,23 @@ namespace NewsSite.Areas.Admin.Controllers
         {
             if(ModelState.IsValid)
             {
-                var doesNewsExists = _db.News.Include(s => s.Category).Where(s => s.Title == model.News.Title && s.Category.Id == model.News.CategoryId);
+                var doesNewsExists = _dbNews.GetAllAsyncIQueryable(s => s.Title == model.News.Title && s.Category.Id == model.News.CategoryId);
 
-                if(doesNewsExists.Count()>0)
+                if (doesNewsExists.Count()>0)
                 {
                     //Error
                     StatusMessage = "Error : News exists under " + doesNewsExists.First().Category.Name + " category. Please use another Title.";
                 }
                 else
                 {
-                    _db.News.Add(model.News);
-                    await _db.SaveChangesAsync();
+                    await _dbNews.CreateAsync(model.News);
+                    await _dbNews.SaveAsync();
                     //Work on the image saving section
 
                     string webRootPath = _hostingEnvironment.WebRootPath;
                     var files = HttpContext.Request.Form.Files;
 
-                    var NewsFromDb = await _db.News.FindAsync(model.News.Id);
+                    var NewsFromDb = await _dbNews.GetAsync(m => m.Id == model.News.Id);
 
                     if (files.Count > 0)
                     {
@@ -98,7 +103,7 @@ namespace NewsSite.Areas.Admin.Controllers
                     }
 
 
-                    await _db.SaveChangesAsync();
+                    await _dbNews.SaveAsync();
                     return RedirectToAction(nameof(Index));
                 }
             }
@@ -106,7 +111,7 @@ namespace NewsSite.Areas.Admin.Controllers
 
             NewsAndCategoryViewModel modelVM = new NewsAndCategoryViewModel()
             {
-                CategoryList = await _db.Category.ToListAsync(),
+                CategoryList = await _dbCategory.GetAllAsync(),
                 News = model.News,
                 StatusMessage = StatusMessage
             };
@@ -116,17 +121,17 @@ namespace NewsSite.Areas.Admin.Controllers
 
 
 
-        [ActionName("GetNews")]
-        public async Task<IActionResult> GetNews(int id)
-        {
-            List<News> News = new List<News>();
+        //[ActionName("GetNews")]
+        //public async Task<IActionResult> GetNews(int id)
+        //{
+        //    List<News> News = new List<News>();
+        //    var newsss = _dbNews.GetAll();
 
-
-            News = await (from newss in _db.News
-                             where newss.CategoryId == id
-                             select newss).ToListAsync();
-            return Json(new SelectList(News, "Id", "Title"));
-        }
+        //    News = (from newss in newsss
+        //                  where newss.CategoryId == id
+        //                     select newss).ToList();
+        //    return Json(new SelectList(News, "Id", "Title"));
+        //}
 
 
         //GET - EDIT
@@ -137,7 +142,7 @@ namespace NewsSite.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var NewsFromDb = await _db.News.SingleOrDefaultAsync(m => m.Id == id);
+            var NewsFromDb = await _dbNews.GetAsync(m => m.Id == id);
 
             if(NewsFromDb == null)
             {
@@ -146,7 +151,7 @@ namespace NewsSite.Areas.Admin.Controllers
 
             NewsAndCategoryViewModel model = new NewsAndCategoryViewModel()
             {
-                CategoryList = await _db.Category.ToListAsync(),
+                CategoryList = await _dbCategory.GetAllAsync(),
                 News = NewsFromDb,
             };
 
@@ -163,9 +168,6 @@ namespace NewsSite.Areas.Admin.Controllers
                 return NotFound();
             }
 
-
-
-
             if (!ModelState.IsValid)
             {
                 return View(NewsVm);
@@ -176,7 +178,7 @@ namespace NewsSite.Areas.Admin.Controllers
             string webRootPath = _hostingEnvironment.WebRootPath;
             var files = HttpContext.Request.Form.Files;
 
-            var NewsFromDb = await _db.News.FindAsync(NewsVm.News.Id);
+            var NewsFromDb = await _dbNews.GetAsync(m => m.Id == NewsVm.News.Id);
 
             if (files.Count > 0)
             {
@@ -207,7 +209,7 @@ namespace NewsSite.Areas.Admin.Controllers
 
 
 
-            await _db.SaveChangesAsync();
+            await _dbNews.SaveAsync();
 
             return RedirectToAction(nameof(Index));
         }
@@ -220,7 +222,7 @@ namespace NewsSite.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            model.News = await _db.News.Include(m => m.Category).SingleOrDefaultAsync(m => m.Id == id);
+            model.News = await _dbNews.GetAsync(m => m.Id == id, includeProperties: "Category");
 
             if (model.News == null)
             {
@@ -238,8 +240,7 @@ namespace NewsSite.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-
-            model.News = await _db.News.Include(m => m.Category).SingleOrDefaultAsync(m => m.Id == id);
+            model.News = await _dbNews.GetAsync(m => m.Id == id, includeProperties: "Category");
 
             if (model.News == null)
             {
@@ -255,7 +256,7 @@ namespace NewsSite.Areas.Admin.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             string webRootPath = _hostingEnvironment.WebRootPath;
-            News News = await _db.News.FindAsync(id);
+            News News = await _dbNews.GetAsync(m => m.Id == id);
 
             if (News != null)
             {
@@ -265,8 +266,8 @@ namespace NewsSite.Areas.Admin.Controllers
                 {
                     System.IO.File.Delete(imagePath);
                 }
-                _db.News.Remove(News);
-                await _db.SaveChangesAsync();
+               await _dbNews.RemoveAsync(News);
+                await _dbNews.SaveAsync();
 
             }
 

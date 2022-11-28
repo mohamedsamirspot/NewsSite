@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NewsSite.Data;
 using NewsSite.Models;
+using NewsSite.Repository.IRepostiory;
 using NewsSite.Utility;
 using System.Data;
 using System.Threading.Tasks;
@@ -14,18 +16,19 @@ namespace NewsSite.Areas.Admin.Controllers
     [Authorize(Roles = SD.Admin)]
     public class CategoryController : Controller
     {
-        private readonly ApplicationDbContext _db;
-        public CategoryController(ApplicationDbContext db)
-        {
-            _db = db;
-        }
 
+        private readonly ICategoryRepository _dbCategory;
+
+        public CategoryController(ICategoryRepository dbCategory)
+        {
+            _dbCategory = dbCategory;
+        }
 
 
         //GET 
         public async Task<IActionResult> Index()
         {
-            return View(await _db.Category.ToListAsync());
+            return View(await _dbCategory.GetAllAsync());
         }
 
         //GET - CREATE
@@ -43,8 +46,8 @@ namespace NewsSite.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 //if valid
-                _db.Category.Add(category);
-                await _db.SaveChangesAsync();
+                await _dbCategory.CreateAsync(category);
+                await _dbCategory.SaveAsync();
 
                 return RedirectToAction(nameof(Index));
             }
@@ -59,7 +62,7 @@ namespace NewsSite.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            var category = await _db.Category.FindAsync(id);
+            var category = await _dbCategory.GetAsync(u => u.Id == id);
             if (category == null)
             {
                 return NotFound();
@@ -74,9 +77,9 @@ namespace NewsSite.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                _db.Update(category);
+                await _dbCategory.UpdateAsync(category);
 
-                await _db.SaveChangesAsync();
+                await _dbCategory.SaveAsync();
 
                 return RedirectToAction(nameof(Index));
             }
@@ -92,7 +95,7 @@ namespace NewsSite.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            var category = await _db.Category.FindAsync(id);
+            var category = await _dbCategory.GetAsync(u => u.Id == id);
             if (category == null)
             {
                 return NotFound();
@@ -104,14 +107,14 @@ namespace NewsSite.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int? id)
         {
-            var category = await _db.Category.FindAsync(id);
+            var category = await _dbCategory.GetAsync(u => u.Id == id);
 
             if (category == null)
             {
                 return View();
             }
-            _db.Category.Remove(category);
-            await _db.SaveChangesAsync();
+            await _dbCategory.RemoveAsync(category);
+            await _dbCategory.SaveAsync();
             return RedirectToAction(nameof(Index));
         }
 
@@ -123,7 +126,7 @@ namespace NewsSite.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var category = await _db.Category.FindAsync(id);
+            var category = await _dbCategory.GetAsync(u => u.Id == id);
             if (category == null)
             {
                 return NotFound();

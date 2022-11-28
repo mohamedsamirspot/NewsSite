@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using NewsSite.Data;
 using NewsSite.Models;
 using NewsSite.Models.Dto;
+using NewsSite.Repository.IRepostiory;
 using NewsSite.Utility;
 
 namespace NewsSite.ApiControllers
@@ -21,14 +22,15 @@ namespace NewsSite.ApiControllers
     [ApiController]
     public class NewsController : ControllerBase
     {
-        private readonly ApplicationDbContext _db;
-        private readonly IMapper _mapper; 
+        private readonly IMapper _mapper;
+        private readonly INewsRepository _dbNews;
         protected APIResponse _response;
 
 
-        public NewsController(ApplicationDbContext db, IMapper mapper)
+        public NewsController(INewsRepository dbNews, IMapper mapper)
         {
-            _db = db;
+
+            _dbNews = dbNews;
             _mapper = mapper;
             _response = new();
         }
@@ -41,7 +43,7 @@ namespace NewsSite.ApiControllers
         {
             try
             {
-                IEnumerable<News> NewsList = await _db.News.ToListAsync();
+                IEnumerable<News> NewsList = await _dbNews.GetAllAsync();
                 _response.Result = _mapper.Map<List<NewsDto>>(NewsList);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
@@ -70,7 +72,7 @@ namespace NewsSite.ApiControllers
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                var News = await _db.News.FindAsync(id);
+                var News = await _dbNews.GetAsync(u => u.Id == id);
                 if (News == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;

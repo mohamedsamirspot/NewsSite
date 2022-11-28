@@ -15,7 +15,7 @@ namespace NewsSite.Models
         public string Title { get; set; }
         public string Description { get; set; }
         [Display(Name = "Date")]
-        public DateTime NewsDate { get; set; }
+        public DateTime NewsDate { get; set; } = DateTime.Now;
 
         public string Image { get; set; }
 
