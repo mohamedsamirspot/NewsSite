@@ -34,6 +34,8 @@ namespace NewsSite.ApiControllers
         }
 
         // GET: api/News
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet]
         public async Task<ActionResult<APIResponse>> GetNews()
         {
@@ -55,6 +57,9 @@ namespace NewsSite.ApiControllers
         }
 
         // GET: api/News/5
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("{id}")]
         public async Task<ActionResult<APIResponse>> GetNews(int id)
         {
