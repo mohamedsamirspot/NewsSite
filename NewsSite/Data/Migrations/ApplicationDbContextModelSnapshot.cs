@@ -47,6 +47,22 @@ namespace NewsSite.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "1e5d9146-8041-4974-ab63-bd95c3f7c8ef",
+                            ConcurrencyStamp = "1e5d9146-8041-4974-ab63-bd95c3f7c8ef",
+                            Name = "Admin",
+                            NormalizedName = "Admin"
+                        },
+                        new
+                        {
+                            Id = "a97b8250-fd63-4186-a595-67f8743d15fc",
+                            ConcurrencyStamp = "a97b8250-fd63-4186-a595-67f8743d15fc",
+                            Name = "Visitor",
+                            NormalizedName = "VISITOR"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -207,6 +223,13 @@ namespace NewsSite.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = "02174cf0–9412–4cfe - afbf - 59f706d72cf6",
+                            RoleId = "1e5d9146-8041-4974-ab63-bd95c3f7c8ef"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -315,6 +338,24 @@ namespace NewsSite.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasDiscriminator().HasValue("ApplicationUser");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "02174cf0–9412–4cfe - afbf - 59f706d72cf6",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "0bb224a8-551a-4a79-b2c6-7dc6179ef76a",
+                            Email = "admin@gmail.com",
+                            EmailConfirmed = true,
+                            LockoutEnabled = false,
+                            NormalizedUserName = "ADMIN@GMAIL.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAENQzggaN/5mftc31bt+hixbaW2w3WpCrS/4BMJ6PSqs/8RlM/+8h1OrRHXFLbaASpg==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "bcac861a-d464-49fc-8492-d1652050ea47",
+                            TwoFactorEnabled = false,
+                            UserName = "admin@gmail.com",
+                            Name = "Admin"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

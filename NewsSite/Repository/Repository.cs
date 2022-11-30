@@ -16,7 +16,7 @@ namespace NewsSite.Repository
             _db = db;
 
         }
-
+        
         public async Task CreateAsync(T entity)
         {
             await _db.Set<T>().AddAsync(entity);
