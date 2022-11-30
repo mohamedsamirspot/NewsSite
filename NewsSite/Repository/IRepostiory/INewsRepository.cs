@@ -6,7 +6,7 @@ namespace NewsSite.Repository.IRepostiory
     public interface INewsRepository : IRepository<News>
     {
       
-        Task<News> UpdateAsync(News entity);
+        //Task<News> UpdateAsync(News entity);
   
     }
 }

@@ -79,7 +79,7 @@ namespace NewsSite.Areas.Admin.Controllers
             {
                 await _dbCategory.UpdateAsync(category);
 
-                await _dbCategory.SaveAsync();
+                //await _dbCategory.SaveAsync(); // already done on the updateasync
 
                 return RedirectToAction(nameof(Index));
             }
@@ -114,7 +114,7 @@ namespace NewsSite.Areas.Admin.Controllers
                 return View();
             }
             await _dbCategory.RemoveAsync(category);
-            await _dbCategory.SaveAsync();
+            //await _dbCategory.SaveAsync(); // already done on the removeasync
             return RedirectToAction(nameof(Index));
         }
 

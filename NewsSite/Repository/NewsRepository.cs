@@ -15,11 +15,11 @@ namespace NewsSite.Repository
         }
 
   
-        public async Task<News> UpdateAsync(News entity)
-        {
-            _db.News.Update(entity);
-            await _db.SaveChangesAsync();
-            return entity;
-        }
+        //public async Task<News> UpdateAsync(News entity)
+        //{
+        //    _db.News.Update(entity);
+        //    await _db.SaveChangesAsync();
+        //    return entity;
+        //}
     }
 }
