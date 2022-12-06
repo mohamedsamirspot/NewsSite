@@ -17,14 +17,14 @@ namespace NewsSite.Areas.Identity.Pages.Account
     [AllowAnonymous]
     public class ExternalLoginModel : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<ExternalLoginModel> _logger;
         private readonly RoleManager<IdentityRole> _roleManager;
 
         public ExternalLoginModel(
-            SignInManager<IdentityUser> signInManager,
-            UserManager<IdentityUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
+            UserManager<ApplicationUser> userManager,
             ILogger<ExternalLoginModel> logger,
             RoleManager<IdentityRole> roleManager
             )
@@ -149,7 +149,8 @@ namespace NewsSite.Areas.Identity.Pages.Account
                     StreetAddress = Input.StreetAddress,
                     State = Input.State,
                     PostalCode = Input.PostalCode,
-                    PhoneNumber = Input.PhoneNumber
+                    PhoneNumber = Input.PhoneNumber,
+                    EmailConfirmed = true,
                 };
 
                 var result = await _userManager.CreateAsync(user);

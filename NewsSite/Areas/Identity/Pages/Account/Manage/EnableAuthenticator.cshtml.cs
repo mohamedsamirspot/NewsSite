@@ -148,7 +148,7 @@ namespace NewsSite.Areas.Identity.Pages.Account.Manage
         {
             return string.Format(
                 AuthenticatorUriFormat,
-                _urlEncoder.Encode("Spice"),
+                _urlEncoder.Encode("NewsSite"),
                 _urlEncoder.Encode(email),
                 unformattedKey);
         }

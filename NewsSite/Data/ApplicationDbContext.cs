@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NewsSite.Models;
+using NewsSite.Utility;
 using System.ComponentModel;
 
 namespace NewsSite.Data
@@ -48,15 +49,15 @@ namespace NewsSite.Data
             modelBuilder.Entity<IdentityRole>().HasData(
                 new IdentityRole
                 {
-                    Name = "Admin",
-                    NormalizedName = "Admin",
+                    Name = SD.Admin,
+                    NormalizedName = SD.Admin.ToUpper(),
                     Id = ADMIN_ROLE_ID,
                     ConcurrencyStamp = ADMIN_ROLE_ID
                 },
                 new IdentityRole
                 {
-                    Name = "Visitor",
-                    NormalizedName = "VISITOR",
+                    Name = SD.Visitor,
+                    NormalizedName = SD.Visitor.ToUpper(),
                     Id = Visitor_ROLE_ID,
                     ConcurrencyStamp = Visitor_ROLE_ID
                 }
@@ -68,7 +69,7 @@ namespace NewsSite.Data
                 Id = ADMIN_ID,
                 Email = "admin@gmail.com",
                 EmailConfirmed = true,
-                Name = "Admin",
+                Name = SD.Admin,
                 UserName = "admin@gmail.com",
                 NormalizedUserName = "ADMIN@GMAIL.COM"
             };

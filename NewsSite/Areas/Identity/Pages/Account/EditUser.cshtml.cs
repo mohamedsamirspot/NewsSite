@@ -16,14 +16,14 @@ namespace NewsSite.Areas.Identity.Pages.Account
     public class EditUserModel : PageModel
     {
 
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
         private readonly ApplicationDbContext _db;
         public EditUserModel(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager,
-            RoleManager<IdentityRole> roleManager, ApplicationDbContext db)
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager, 
+            ApplicationDbContext db)
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -50,17 +50,17 @@ namespace NewsSite.Areas.Identity.Pages.Account
 
                             if (role == SD.Admin)
                             {
-                        await _userManager.AddToRoleAsync(user, SD.Admin);
+                                await _userManager.AddToRoleAsync(user, SD.Admin);
                             }
                             else
                             {
                                 await _userManager.AddToRoleAsync(user, SD.Visitor);
                                 return LocalRedirect(returnUrl);
                             }
-                        
-                    
+    
 
 
+                    // hna 3shan b3d ma acreate new user ywdene 3la sf7t el users brdo
                     return RedirectToAction("Index", "User", new { area = "Admin" });
 
             }
