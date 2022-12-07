@@ -20,6 +20,7 @@ namespace NewsSite.ApiControllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = "Bearer", Roles = SD.Admin)]
     public class NewsController : ControllerBase
     {
         private readonly IMapper _mapper;
@@ -29,7 +30,6 @@ namespace NewsSite.ApiControllers
 
         public NewsController(INewsRepository dbNews, IMapper mapper)
         {
-
             _dbNews = dbNews;
             _mapper = mapper;
             _response = new();

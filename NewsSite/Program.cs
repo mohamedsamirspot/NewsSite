@@ -8,6 +8,11 @@ using NewsSite.Repository;
 using NewsSite.Models;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using NewsSite.Service;
+using NewsSite.Helpers;
+using NewsSite.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,9 +22,33 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole> (options => options.SignIn.RequireConfirmedAccount = true).
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true).
     AddDefaultTokenProviders()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+
+// jwt part
+builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddAuthentication()
+.AddJwtBearer(o =>
+{
+    o.RequireHttpsMetadata = false;
+    o.SaveToken = false;
+    o.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidIssuer = builder.Configuration["JWT:Issuer"],
+        ValidAudience = builder.Configuration["JWT:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
+    };
+});
+
+
+
 
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<INewsRepository, NewsRepository>();
