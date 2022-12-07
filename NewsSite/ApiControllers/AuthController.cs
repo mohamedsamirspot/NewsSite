@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NewsSite.Models;
-using NewsSite.Services;
+using NewsSite.Repository;
+using NewsSite.Repository.IRepostiory;
 using NewsSite.Utility;
 
 namespace NewsSite.Controllers
@@ -15,11 +16,11 @@ namespace NewsSite.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IAuthService _authService;
+        private readonly IAuthRepository _authRepository;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthRepository authService)
         {
-            _authService = authService;
+            _authRepository = authService;
         }
 
         [HttpPost("RegisterAsync")]
@@ -29,7 +30,7 @@ namespace NewsSite.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _authService.RegisterAsync(model);
+            var result = await _authRepository.RegisterAsync(model);
 
             if (!result.IsAuthenticated)
                 return BadRequest(result.Message);
@@ -44,7 +45,7 @@ namespace NewsSite.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _authService.GetTokenAsync(model);
+            var result = await _authRepository.GetTokenAsync(model);
 
             if (!result.IsAuthenticated)
                 return BadRequest(result.Message);
@@ -60,7 +61,7 @@ namespace NewsSite.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _authService.AddRoleAsync(model);
+            var result = await _authRepository.AddRoleAsync(model);
 
             if (!string.IsNullOrEmpty(result))
                 return BadRequest(result);

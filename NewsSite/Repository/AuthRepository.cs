@@ -10,16 +10,17 @@ using System.Text;
 using System.Threading.Tasks;
 using NewsSite.Helpers;
 using NewsSite.Models;
+using NewsSite.Repository.IRepostiory;
 
-namespace NewsSite.Services
+namespace NewsSite.Repository
 {
-    public class AuthService : IAuthService
+    public class AuthRepository : IAuthRepository
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly JWT _jwt;
 
-        public AuthService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<JWT> jwt)
+        public AuthRepository(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<JWT> jwt)
         {
             _userManager = userManager;
             _roleManager = roleManager;

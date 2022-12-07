@@ -9,7 +9,6 @@ using NewsSite.Models;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using NewsSite.Service;
 using NewsSite.Helpers;
-using NewsSite.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -29,7 +28,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.S
 
 // jwt part
 builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
-builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddAuthentication()
 .AddJwtBearer(o =>
 {

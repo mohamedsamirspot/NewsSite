@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using NewsSite.Models;
 
-namespace NewsSite.Services
+namespace NewsSite.Repository.IRepostiory
 {
-    public interface IAuthService
+    public interface IAuthRepository
     {
         Task<AuthModel> RegisterAsync(RegisterModel model);
         Task<AuthModel> GetTokenAsync(TokenRequestModel model);
