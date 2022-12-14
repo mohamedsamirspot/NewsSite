@@ -12,7 +12,7 @@ namespace NewsSite.Service
     public class EmailSender : IEmailSender
     {
 
-        public async Task SendEmailAsync(string email, string subject, string htmlMessage)
+        public Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
 
             // send confirmation or resetpasswordemail
@@ -34,6 +34,7 @@ namespace NewsSite.Service
             };
 
             smtpClient.Send(message);
+            return Task.CompletedTask;
         }
     }
 }

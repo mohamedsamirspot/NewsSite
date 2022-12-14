@@ -40,7 +40,11 @@ namespace NewsSite.Controllers
 
         [HttpPost("GetTokenAsync")]
         // POST: api/Auth/GetTokenAsync
-        public async Task<IActionResult> GetTokenAsync([FromBody] TokenRequestModel model)
+//        {
+//    "email":"mohamedsamirspot@gmail.com",
+//    "Password": ""
+//}
+    public async Task<IActionResult> GetTokenAsync([FromBody] TokenRequestModel model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

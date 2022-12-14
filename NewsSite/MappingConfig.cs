@@ -9,8 +9,8 @@ namespace NewsSite
     {
         public MappingConfig()
         {
-            CreateMap<News, NewsDto>();
-            CreateMap<NewsDto, News>();
+            CreateMap<News, NewsDto>().ReverseMap();
+            //CreateMap<NewsDto, News>();
         }
     }
 }
