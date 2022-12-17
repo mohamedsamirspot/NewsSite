@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NewsSite.Data;
 using NewsSite.Models;
+using NewsSite.Models.ViewModels;
 using NewsSite.Repository.IRepostiory;
 using NewsSite.Utility;
 using System.Data;
@@ -18,7 +19,7 @@ namespace NewsSite.Areas.Admin.Controllers
     {
 
         private readonly ICategoryRepository _dbCategory;
-
+        private int PageSize = 5;
         public CategoryController(ICategoryRepository dbCategory)
         {
             _dbCategory = dbCategory;
@@ -26,9 +27,27 @@ namespace NewsSite.Areas.Admin.Controllers
 
 
         //GET 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int productPage = 1)
         {
-            return View(await _dbCategory.GetAllAsync());
+            CategoriesViewModel CategoriesVM = new CategoriesViewModel()
+            {
+                Categories = await _dbCategory.GetAllAsync()
+            };
+
+            var count = CategoriesVM.Categories.Count;
+            CategoriesVM.Categories = CategoriesVM.Categories.OrderByDescending(p => p.Id)
+                                 .Skip((productPage - 1) * PageSize)
+                                 .Take(PageSize).ToList();
+
+            CategoriesVM.PagingInfo = new PagingInfo
+            {
+                CurrentPage = productPage,
+                ItemsPerPage = PageSize,
+                TotalItem = count,
+                urlParam = "/Admin/Category/Index?productPage=:"
+            };
+
+            return View(CategoriesVM);
         }
 
         //GET - CREATE

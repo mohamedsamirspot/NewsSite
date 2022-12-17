@@ -38,10 +38,7 @@ namespace NewsSite.Controllers
             {
                 News = await _dbNews.GetAllAsync(includeProperties: "Category"), 
                 Category = await _dbCategory.GetAllAsync(),
-
             };
-
-
             return View(IndexVM);
         }
 
@@ -51,9 +48,5 @@ namespace NewsSite.Controllers
             var NewsFromDb = await _dbNews.GetAsync(m => m.Id == id, includeProperties: "Category");
             return View(NewsFromDb);
         }
-
-
-
-
     }
 }

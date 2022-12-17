@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections;
+﻿using NewsSite.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace NewsSite.Models.ViewModels
 {
-    public class IndexViewModel
+    public class NewsViewModel
     {
         public IList<News> News { get; set; }
-        public IList<Category> Category { get; set; }
-
+        public PagingInfo PagingInfo { get; set; }
     }
 }

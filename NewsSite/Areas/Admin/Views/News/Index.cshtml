@@ -1,4 +1,4 @@
-﻿@model IEnumerable<News>
+﻿@model NewsViewModel
 
 @{
     ViewData["Title"] = "Index";
@@ -18,26 +18,26 @@
     </div>
     <br />
     <div>
-        @if (Model.Count() > 0)
+        @if (Model.News.Count() > 0)
         {
             <table class="table table-striped border" style="table-layout: fixed;">
                 <tr class="table-secondary">
                     <th>
-                        @Html.DisplayNameFor(m => m.Title)
+                        @Html.DisplayNameFor(m => m.News[0].Title)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(m => m.NewsDate)
+                        @Html.DisplayNameFor(m => m.News[0].NewsDate)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(m => m.Category)
+                        @Html.DisplayNameFor(m => m.News[0].Category)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(m => m.Image)
+                        @Html.DisplayNameFor(m => m.News[0].Image)
                     </th>
                     <th></th>
                     <th></th>
                 </tr>
-                @foreach (var item in Model)
+                @foreach (var item in Model.News)
                 {
                     <tr>
                         <td style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
@@ -58,6 +58,11 @@
                     </tr>
                 }
             </table>
+            <div page-model="@Model.PagingInfo" page-classes-enabled="true" page-class="btn border"
+             page-class-normal="btn btn-light" page-class-selected="btn btn-info active"
+             class="btn-group float-right">
+            </div>
+            <br />
         }
         else
         {

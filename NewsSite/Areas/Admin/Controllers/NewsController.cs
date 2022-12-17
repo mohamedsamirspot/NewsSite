@@ -26,7 +26,7 @@ namespace NewsSite.Areas.Admin.Controllers
 
         [TempData]
         public string StatusMessage { get; set; }
-
+        private int PageSize = 5;
 
         private readonly INewsRepository _dbNews;
         private readonly ICategoryRepository _dbCategory;
@@ -39,10 +39,25 @@ namespace NewsSite.Areas.Admin.Controllers
 
 
         //Get INDEX
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int productPage = 1)
         {
-            var news = await _dbNews.GetAllAsync(includeProperties: "Category");
-            return View(news);
+            NewsViewModel NewsVM = new NewsViewModel()
+            {
+                News = await _dbNews.GetAllAsync(includeProperties: "Category")
+            };
+
+            var count = NewsVM.News.Count;
+            NewsVM.News = NewsVM.News.OrderByDescending(p => p.Id)
+                                 .Skip((productPage - 1) * PageSize)
+                                 .Take(PageSize).ToList();
+            NewsVM.PagingInfo = new PagingInfo
+            {
+                CurrentPage = productPage,
+                ItemsPerPage = PageSize,
+                TotalItem = count,
+                urlParam = "/Admin/News/Index?productPage=:"
+            };
+            return View(NewsVM);
         }
 
         //GET - CREATE

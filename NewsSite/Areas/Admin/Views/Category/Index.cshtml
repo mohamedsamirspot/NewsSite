@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Category>
+﻿@model CategoriesViewModel
 
 
 @{
@@ -19,17 +19,17 @@
     </div>
     <br />
     <div>
-        @if (Model.Count() > 0)
+        @if (Model.Categories.Count() > 0)
         {
             <table class="table table-striped border">
                 <tr class="table-secondary">
                     <th>
-                        <label asp-for="@Model.ToList()[0].Name"></label>
+                        @Html.DisplayNameFor(c => c.Categories[0].Name)
                     </th>
                     <th></th>
                     <th></th>
                 </tr>
-                @foreach (var item in Model)
+                @foreach (var item in Model.Categories)
                 {
                     <tr>
                         <td>
@@ -41,6 +41,11 @@
                     </tr>
                 }
             </table>
+            <div page-model="@Model.PagingInfo" page-classes-enabled="true" page-class="btn border"
+                 page-class-normal="btn btn-light" page-class-selected="btn btn-info active"
+                 class="btn-group float-right">
+            </div>
+            <br />
         }
         else
         {
