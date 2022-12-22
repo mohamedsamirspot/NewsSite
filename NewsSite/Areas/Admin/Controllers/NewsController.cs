@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -26,7 +27,7 @@ namespace NewsSite.Areas.Admin.Controllers
 
         [TempData]
         public string StatusMessage { get; set; }
-        private int PageSize = 5;
+        private int PageSize = 4;
 
         private readonly INewsRepository _dbNews;
         private readonly ICategoryRepository _dbCategory;
@@ -39,12 +40,21 @@ namespace NewsSite.Areas.Admin.Controllers
 
 
         //Get INDEX
-        public async Task<IActionResult> Index(int productPage = 1)
+        public async Task<IActionResult> Index(int productPage = 1, string searchByTitle = null)
         {
-            NewsViewModel NewsVM = new NewsViewModel()
+            StringBuilder param = new StringBuilder();
+            param.Append("/Admin/News/Index?productPage=:");
+            param.Append("&searchByTitle=");
+            if (searchByTitle != null)
             {
-                News = await _dbNews.GetAllAsync(includeProperties: "Category")
-            };
+                param.Append(searchByTitle);
+            }
+            NewsViewModel NewsVM = new NewsViewModel();
+            if (searchByTitle != null)
+                NewsVM.News = await _dbNews.GetAllAsync(u => u.Title.ToLower().Contains(searchByTitle.ToLower()), includeProperties: "Category");
+            else
+                NewsVM.News = await _dbNews.GetAllAsync(includeProperties: "Category");
+
 
             var count = NewsVM.News.Count;
             NewsVM.News = NewsVM.News.OrderByDescending(p => p.Id)
@@ -55,7 +65,7 @@ namespace NewsSite.Areas.Admin.Controllers
                 CurrentPage = productPage,
                 ItemsPerPage = PageSize,
                 TotalItem = count,
-                urlParam = "/Admin/News/Index?productPage=:"
+                urlParam = param.ToString()
             };
             return View(NewsVM);
         }
