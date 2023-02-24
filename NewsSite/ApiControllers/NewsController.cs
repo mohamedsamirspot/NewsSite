@@ -24,13 +24,12 @@ namespace NewsSite.ApiControllers
     public class NewsController : ControllerBase
     {
         private readonly IMapper _mapper;
-        private readonly INewsRepository _dbNews;
         protected APIResponse _response;
+        private readonly IUnitOfWork _unitOfWork;
 
-
-        public NewsController(INewsRepository dbNews, IMapper mapper)
+        public NewsController(IUnitOfWork unitOfWork, IMapper mapper)
         {
-            _dbNews = dbNews;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
             _response = new();
         }
@@ -43,7 +42,7 @@ namespace NewsSite.ApiControllers
         {
             try
             {
-                IEnumerable<News> NewsList = await _dbNews.GetAllAsync();
+                IEnumerable<News> NewsList = await _unitOfWork.News.GetAllAsync();
                 _response.Result = _mapper.Map<List<NewsDto>>(NewsList);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
@@ -72,7 +71,7 @@ namespace NewsSite.ApiControllers
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                var News = await _dbNews.GetAsync(u => u.Id == id);
+                var News = await _unitOfWork.News.GetAsync(u => u.Id == id);
                 if (News == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;

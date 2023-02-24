@@ -23,21 +23,22 @@ namespace NewsSite.Controllers
     public class HomeController : Controller
     {
 
-        private readonly INewsRepository _dbNews;
-        private readonly ICategoryRepository _dbCategory;
 
-        public HomeController(INewsRepository dbNews,ICategoryRepository dbCategory)
+
+        private readonly IUnitOfWork _unitOfWork;
+
+        public HomeController(IUnitOfWork unitOfWork)
         {
-            _dbNews = dbNews;
-            _dbCategory = dbCategory;
+            _unitOfWork = unitOfWork;
         }
+
 
         public async Task<IActionResult> Index()
         {
             IndexViewModel IndexVM = new IndexViewModel()
             {
-                News = await _dbNews.GetAllAsync(includeProperties: "Category"), 
-                Category = await _dbCategory.GetAllAsync(),
+                News = await _unitOfWork.News.GetAllAsync(includeProperties: "Category"), 
+                Category = await _unitOfWork.Categories.GetAllAsync(),
             };
             return View(IndexVM);
         }
@@ -45,7 +46,7 @@ namespace NewsSite.Controllers
         [Authorize]
         public async Task<IActionResult> Details(int id)
         {
-            var NewsFromDb = await _dbNews.GetAsync(m => m.Id == id, includeProperties: "Category");
+            var NewsFromDb = await _unitOfWork.News.GetAsync(m => m.Id == id, includeProperties: "Category");
             return View(NewsFromDb);
         }
     }

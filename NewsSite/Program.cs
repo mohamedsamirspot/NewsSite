@@ -8,10 +8,10 @@ using NewsSite.Repository;
 using NewsSite.Models;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using NewsSite.Service;
-using NewsSite.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using NewsSite.Utility;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +28,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.S
 
 // jwt part
 builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
-builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+//builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddAuthentication()
 .AddJwtBearer(o =>
 {
@@ -49,8 +49,9 @@ builder.Services.AddAuthentication()
 
 
 
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<INewsRepository, NewsRepository>();
+//builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+//builder.Services.AddScoped<INewsRepository, NewsRepository>();
+builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 

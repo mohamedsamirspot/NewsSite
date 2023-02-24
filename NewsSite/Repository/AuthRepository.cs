@@ -8,9 +8,9 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using NewsSite.Helpers;
 using NewsSite.Models;
 using NewsSite.Repository.IRepostiory;
+using NewsSite.Utility;
 
 namespace NewsSite.Repository
 {

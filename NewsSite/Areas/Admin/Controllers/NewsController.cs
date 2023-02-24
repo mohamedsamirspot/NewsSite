@@ -29,15 +29,23 @@ namespace NewsSite.Areas.Admin.Controllers
         public string StatusMessage { get; set; }
         private int PageSize = 4;
 
-        private readonly INewsRepository _dbNews;
-        private readonly ICategoryRepository _dbCategory;
-        public NewsController(INewsRepository dbNews, ICategoryRepository dbCategory, IWebHostEnvironment hostingEnvironment)
+        //private readonly INewsRepository _dbNews;
+        //private readonly ICategoryRepository _dbCategory;
+        //public NewsController(INewsRepository dbNews, ICategoryRepository dbCategory, IWebHostEnvironment hostingEnvironment)
+        //{
+        //    _dbNews = dbNews;
+        //    _dbCategory = dbCategory;
+        //    _hostingEnvironment = hostingEnvironment;
+        //}
+
+
+        private readonly IUnitOfWork _unitOfWork;
+
+        public NewsController(IUnitOfWork unitOfWork, IWebHostEnvironment hostingEnvironment)
         {
-            _dbNews = dbNews;
-            _dbCategory = dbCategory;
+            _unitOfWork = unitOfWork;
             _hostingEnvironment = hostingEnvironment;
         }
-
 
         //Get INDEX
         public async Task<IActionResult> Index(int productPage = 1, string searchByTitle = null)
@@ -51,9 +59,9 @@ namespace NewsSite.Areas.Admin.Controllers
             }
             NewsViewModel NewsVM = new NewsViewModel();
             if (searchByTitle != null)
-                NewsVM.News = await _dbNews.GetAllAsync(u => u.Title.ToLower().Contains(searchByTitle.ToLower()), includeProperties: "Category");
+                NewsVM.News = await _unitOfWork.News.GetAllAsync(u => u.Title.ToLower().Contains(searchByTitle.ToLower()), includeProperties: "Category");
             else
-                NewsVM.News = await _dbNews.GetAllAsync(includeProperties: "Category");
+                NewsVM.News = await _unitOfWork.News.GetAllAsync(includeProperties: "Category");
 
 
             var count = NewsVM.News.Count;
@@ -75,7 +83,7 @@ namespace NewsSite.Areas.Admin.Controllers
         {
             NewsAndCategoryViewModel model = new NewsAndCategoryViewModel()
             {
-                CategoryList = await _dbCategory.GetAllAsync(),
+                CategoryList = await _unitOfWork.Categories.GetAllAsync(),
                 News = new Models.News(),
             };
 
@@ -89,7 +97,7 @@ namespace NewsSite.Areas.Admin.Controllers
         {
             if(ModelState.IsValid)
             {
-                var doesNewsExists = _dbNews.GetAllAsyncIQueryable(s => s.Title == model.News.Title && s.Category.Id == model.News.CategoryId);
+                var doesNewsExists = _unitOfWork.News.GetAllAsyncIQueryable(s => s.Title == model.News.Title && s.Category.Id == model.News.CategoryId);
 
                 if (doesNewsExists.Count()>0)
                 {
@@ -98,14 +106,14 @@ namespace NewsSite.Areas.Admin.Controllers
                 }
                 else
                 {
-                    await _dbNews.CreateAsync(model.News);
-                    await _dbNews.SaveAsync();
+                    await _unitOfWork.News.CreateAsync(model.News);
+                    await _unitOfWork.News.SaveAsync();
                     //Work on the image saving section
 
                     string webRootPath = _hostingEnvironment.WebRootPath;
                     var files = HttpContext.Request.Form.Files;
 
-                    var NewsFromDb = await _dbNews.GetAsync(m => m.Id == model.News.Id);
+                    var NewsFromDb = await _unitOfWork.News.GetAsync(m => m.Id == model.News.Id);
 
                     if (files.Count > 0)
                     {
@@ -128,7 +136,7 @@ namespace NewsSite.Areas.Admin.Controllers
                     }
 
 
-                    await _dbNews.SaveAsync();
+                    await _unitOfWork.News.SaveAsync();
                     return RedirectToAction(nameof(Index));
                 }
             }
@@ -136,7 +144,7 @@ namespace NewsSite.Areas.Admin.Controllers
 
             NewsAndCategoryViewModel modelVM = new NewsAndCategoryViewModel()
             {
-                CategoryList = await _dbCategory.GetAllAsync(),
+                CategoryList = await _unitOfWork.Categories.GetAllAsync(),
                 News = model.News,
                 StatusMessage = StatusMessage
             };
@@ -167,7 +175,7 @@ namespace NewsSite.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var NewsFromDb = await _dbNews.GetAsync(m => m.Id == id);
+            var NewsFromDb = await _unitOfWork.News.GetAsync(m => m.Id == id);
 
             if(NewsFromDb == null)
             {
@@ -176,7 +184,7 @@ namespace NewsSite.Areas.Admin.Controllers
 
             NewsAndCategoryViewModel model = new NewsAndCategoryViewModel()
             {
-                CategoryList = await _dbCategory.GetAllAsync(),
+                CategoryList = await _unitOfWork.Categories.GetAllAsync(),
                 News = NewsFromDb,
             };
 
@@ -203,7 +211,7 @@ namespace NewsSite.Areas.Admin.Controllers
             string webRootPath = _hostingEnvironment.WebRootPath;
             var files = HttpContext.Request.Form.Files;
 
-            var NewsFromDb = await _dbNews.GetAsync(m => m.Id == NewsVm.News.Id);
+            var NewsFromDb = await _unitOfWork.News.GetAsync(m => m.Id == NewsVm.News.Id);
 
             if (files.Count > 0)
             {
@@ -234,7 +242,7 @@ namespace NewsSite.Areas.Admin.Controllers
 
 
 
-            await _dbNews.SaveAsync();
+            await _unitOfWork.News.SaveAsync();
 
             return RedirectToAction(nameof(Index));
         }
@@ -247,7 +255,7 @@ namespace NewsSite.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            model.News = await _dbNews.GetAsync(m => m.Id == id, includeProperties: "Category");
+            model.News = await _unitOfWork.News.GetAsync(m => m.Id == id, includeProperties: "Category");
 
             if (model.News == null)
             {
@@ -265,7 +273,7 @@ namespace NewsSite.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            model.News = await _dbNews.GetAsync(m => m.Id == id, includeProperties: "Category");
+            model.News = await _unitOfWork.News.GetAsync(m => m.Id == id, includeProperties: "Category");
 
             if (model.News == null)
             {
@@ -281,7 +289,7 @@ namespace NewsSite.Areas.Admin.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             string webRootPath = _hostingEnvironment.WebRootPath;
-            News News = await _dbNews.GetAsync(m => m.Id == id);
+            News News = await _unitOfWork.News.GetAsync(m => m.Id == id);
 
             if (News != null)
             {
@@ -291,8 +299,8 @@ namespace NewsSite.Areas.Admin.Controllers
                 {
                     System.IO.File.Delete(imagePath);
                 }
-               await _dbNews.RemoveAsync(News);
-                await _dbNews.SaveAsync();
+               await _unitOfWork.News.RemoveAsync(News);
+                await _unitOfWork.News.SaveAsync();
 
             }
 

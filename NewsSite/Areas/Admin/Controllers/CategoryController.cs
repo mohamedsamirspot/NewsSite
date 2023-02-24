@@ -18,20 +18,26 @@ namespace NewsSite.Areas.Admin.Controllers
     public class CategoryController : Controller
     {
 
-        private readonly ICategoryRepository _dbCategory;
+        //private readonly ICategoryRepository _dbCategory;
         private int PageSize = 5;
-        public CategoryController(ICategoryRepository dbCategory)
-        {
-            _dbCategory = dbCategory;
-        }
+        //public CategoryController(ICategoryRepository dbCategory)
+        //{
+        //    _dbCategory = dbCategory;
+        //}
 
+        private readonly IUnitOfWork _unitOfWork;
+
+        public CategoryController(IUnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+        }
 
         //GET 
         public async Task<IActionResult> Index(int productPage = 1)
         {
             CategoriesViewModel CategoriesVM = new CategoriesViewModel()
             {
-                Categories = await _dbCategory.GetAllAsync()
+                Categories = await _unitOfWork.Categories.GetAllAsync()
             };
 
             var count = CategoriesVM.Categories.Count;
@@ -65,8 +71,8 @@ namespace NewsSite.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 //if valid
-                await _dbCategory.CreateAsync(category);
-                await _dbCategory.SaveAsync();
+                await _unitOfWork.Categories.CreateAsync(category);
+                await _unitOfWork.Categories.SaveAsync();
 
                 return RedirectToAction(nameof(Index));
             }
@@ -81,7 +87,7 @@ namespace NewsSite.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            var category = await _dbCategory.GetAsync(u => u.Id == id);
+            var category = await _unitOfWork.Categories.GetAsync(u => u.Id == id);
             if (category == null)
             {
                 return NotFound();
@@ -96,7 +102,7 @@ namespace NewsSite.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                await _dbCategory.UpdateAsync(category);
+                await _unitOfWork.Categories.UpdateAsync(category);
 
                 //await _dbCategory.SaveAsync(); // already done on the updateasync
 
@@ -114,7 +120,7 @@ namespace NewsSite.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            var category = await _dbCategory.GetAsync(u => u.Id == id);
+            var category = await _unitOfWork.Categories.GetAsync(u => u.Id == id);
             if (category == null)
             {
                 return NotFound();
@@ -126,13 +132,13 @@ namespace NewsSite.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int? id)
         {
-            var category = await _dbCategory.GetAsync(u => u.Id == id);
+            var category = await _unitOfWork.Categories.GetAsync(u => u.Id == id);
 
             if (category == null)
             {
                 return View();
             }
-            await _dbCategory.RemoveAsync(category);
+            await _unitOfWork.Categories.RemoveAsync(category);
             //await _dbCategory.SaveAsync(); // already done on the removeasync
             return RedirectToAction(nameof(Index));
         }
@@ -145,7 +151,7 @@ namespace NewsSite.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var category = await _dbCategory.GetAsync(u => u.Id == id);
+            var category = await _unitOfWork.Categories.GetAsync(u => u.Id == id);
             if (category == null)
             {
                 return NotFound();

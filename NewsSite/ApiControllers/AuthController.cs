@@ -16,12 +16,13 @@ namespace NewsSite.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IAuthRepository _authRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public AuthController(IAuthRepository authService)
+        public AuthController(IUnitOfWork unitOfWork)
         {
-            _authRepository = authService;
+            _unitOfWork = unitOfWork;
         }
+
 
         [HttpPost("RegisterAsync")]
         // POST: api/Auth/RegisterAsync
@@ -30,7 +31,7 @@ namespace NewsSite.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _authRepository.RegisterAsync(model);
+            var result = await _unitOfWork.Auth.RegisterAsync(model);
 
             if (!result.IsAuthenticated)
                 return BadRequest(result.Message);
@@ -41,15 +42,15 @@ namespace NewsSite.Controllers
         [HttpPost("GetTokenAsync")]
         // POST: api/Auth/GetTokenAsync
 //        {
-//    "email":"mohamedsamirspot@gmail.com",
-//    "Password": ""
+//    "email":"admin@gmail.com",
+//    "Password": "Admin123*"
 //}
     public async Task<IActionResult> GetTokenAsync([FromBody] TokenRequestModel model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _authRepository.GetTokenAsync(model);
+            var result = await _unitOfWork.Auth.GetTokenAsync(model);
 
             if (!result.IsAuthenticated)
                 return BadRequest(result.Message);
@@ -65,7 +66,7 @@ namespace NewsSite.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _authRepository.AddRoleAsync(model);
+            var result = await _unitOfWork.Auth.AddRoleAsync(model);
 
             if (!string.IsNullOrEmpty(result))
                 return BadRequest(result);
