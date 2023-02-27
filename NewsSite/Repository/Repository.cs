@@ -20,7 +20,6 @@ namespace NewsSite.Repository
         public async Task CreateAsync(T entity)
         {
             await _db.Set<T>().AddAsync(entity);
-            await SaveAsync();
         }
 
         //"Category,CategorySpecial"
@@ -105,13 +104,8 @@ namespace NewsSite.Repository
         public async Task RemoveAsync(T entity)
         {
             _db.Set<T>().Remove(entity);
-            await SaveAsync();
         }
 
-        public async Task SaveAsync()
-        {
-            await _db.SaveChangesAsync();
-        }
 
        
     }

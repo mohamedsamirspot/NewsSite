@@ -18,7 +18,6 @@ namespace NewsSite.Repository
         public async Task<Category> UpdateAsync(Category entity)
         {
             _db.Category.Update(entity);
-            await _db.SaveChangesAsync();
             return entity;
         }
     }

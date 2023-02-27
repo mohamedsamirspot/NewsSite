@@ -72,7 +72,7 @@ namespace NewsSite.Areas.Admin.Controllers
             {
                 //if valid
                 await _unitOfWork.Categories.CreateAsync(category);
-                await _unitOfWork.Categories.SaveAsync();
+                await _unitOfWork.Complete();
 
                 return RedirectToAction(nameof(Index));
             }
@@ -140,6 +140,8 @@ namespace NewsSite.Areas.Admin.Controllers
             }
             await _unitOfWork.Categories.RemoveAsync(category);
             //await _dbCategory.SaveAsync(); // already done on the removeasync
+            await _unitOfWork.Complete();
+
             return RedirectToAction(nameof(Index));
         }
 

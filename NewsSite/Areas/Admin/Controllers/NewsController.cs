@@ -107,7 +107,7 @@ namespace NewsSite.Areas.Admin.Controllers
                 else
                 {
                     await _unitOfWork.News.CreateAsync(model.News);
-                    await _unitOfWork.News.SaveAsync();
+                    await _unitOfWork.Complete();
                     //Work on the image saving section
 
                     string webRootPath = _hostingEnvironment.WebRootPath;
@@ -121,7 +121,7 @@ namespace NewsSite.Areas.Admin.Controllers
                         var uploads = Path.Combine(webRootPath, "images");
                         var extension = Path.GetExtension(files[0].FileName);
 
-                        using (var filesStream = new FileStream(Path.Combine(uploads, model.News.Id + extension), FileMode.Create))
+                        using (var filesStream = new FileStream(Path.Combine(uploads, model.News.Id + DateTime.Now.Ticks.ToString() + extension), FileMode.Create))
                         {
                             files[0].CopyTo(filesStream);
                         }
@@ -131,12 +131,12 @@ namespace NewsSite.Areas.Admin.Controllers
                     {
 
                         var uploads = Path.Combine(webRootPath, @"images\" + SD.DefaultItemImage);
-                        System.IO.File.Copy(uploads, webRootPath + @"\images\" + model.News.Id + ".png");
-                        NewsFromDb.Image = @"\images\" + model.News.Id + ".png";
+                        System.IO.File.Copy(uploads, webRootPath + @"\images\" + model.News.Id+ DateTime.Now.Ticks.ToString() + ".png");
+                        NewsFromDb.Image = @"\images\" + model.News.Id + DateTime.Now.Ticks.ToString() + ".png";
                     }
 
 
-                    await _unitOfWork.News.SaveAsync();
+                    await _unitOfWork.Complete();
                     return RedirectToAction(nameof(Index));
                 }
             }
@@ -228,11 +228,12 @@ namespace NewsSite.Areas.Admin.Controllers
                 }
 
                 //we will upload the new file
-                using (var filesStream = new FileStream(Path.Combine(uploads, NewsVm.News.Id + extension_new), FileMode.Create))
+                using (var filesStream = new FileStream(Path.Combine(uploads, NewsVm.News.Id + DateTime.Now.Ticks.ToString() + extension_new), FileMode.Create))
                 {
                     files[0].CopyTo(filesStream);
                 }
-                NewsFromDb.Image = @"\images\" + NewsVm.News.Id + extension_new;
+                NewsFromDb.Image = @"\images\" + NewsVm.News.Id+ DateTime.Now.Ticks.ToString() + extension_new;
+                // datetime to prevent browser caching
             }
 
             NewsFromDb.Title = NewsVm.News.Title;
@@ -242,7 +243,7 @@ namespace NewsSite.Areas.Admin.Controllers
 
 
 
-            await _unitOfWork.News.SaveAsync();
+            await _unitOfWork.Complete();
 
             return RedirectToAction(nameof(Index));
         }
@@ -300,7 +301,7 @@ namespace NewsSite.Areas.Admin.Controllers
                     System.IO.File.Delete(imagePath);
                 }
                await _unitOfWork.News.RemoveAsync(News);
-                await _unitOfWork.News.SaveAsync();
+               await _unitOfWork.Complete();
 
             }
 

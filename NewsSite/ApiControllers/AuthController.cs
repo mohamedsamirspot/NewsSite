@@ -16,13 +16,12 @@ namespace NewsSite.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IAuthRepository _authRepository;
 
-        public AuthController(IUnitOfWork unitOfWork)
+        public AuthController(IAuthRepository authService)
         {
-            _unitOfWork = unitOfWork;
+            _authRepository = authService;
         }
-
 
         [HttpPost("RegisterAsync")]
         // POST: api/Auth/RegisterAsync
@@ -31,7 +30,7 @@ namespace NewsSite.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _unitOfWork.Auth.RegisterAsync(model);
+            var result = await _authRepository.RegisterAsync(model);
 
             if (!result.IsAuthenticated)
                 return BadRequest(result.Message);
@@ -50,7 +49,7 @@ namespace NewsSite.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _unitOfWork.Auth.GetTokenAsync(model);
+            var result = await _authRepository.GetTokenAsync(model);
 
             if (!result.IsAuthenticated)
                 return BadRequest(result.Message);
@@ -66,7 +65,7 @@ namespace NewsSite.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _unitOfWork.Auth.AddRoleAsync(model);
+            var result = await _authRepository.AddRoleAsync(model);
 
             if (!string.IsNullOrEmpty(result))
                 return BadRequest(result);
