@@ -23,24 +23,6 @@ namespace NewsSite.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Category>().HasData(
-              new Category
-              {
-                  Id = 1,
-                  Name = "Sports"
-              },
-              new Category
-              {
-                  Id = 2,
-                  Name = "Fashion"
-              },
-              new Category
-              {
-                  Id = 3,
-                  Name = "Arts"
-              }
-              );
-
             string ADMIN_ID = "02174cf0–9412–4cfe - afbf - 59f706d72cf6";
             string ADMIN_ROLE_ID = "1e5d9146-8041-4974-ab63-bd95c3f7c8ef";
             string Visitor_ROLE_ID = "a97b8250-fd63-4186-a595-67f8743d15fc";

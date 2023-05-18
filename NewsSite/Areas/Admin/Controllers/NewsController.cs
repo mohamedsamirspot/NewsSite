@@ -106,36 +106,28 @@ namespace NewsSite.Areas.Admin.Controllers
                 }
                 else
                 {
-                    await _unitOfWork.News.CreateAsync(model.News);
-                    await _unitOfWork.Complete();
+
+
                     //Work on the image saving section
 
-                    string webRootPath = _hostingEnvironment.WebRootPath;
-                    var files = HttpContext.Request.Form.Files;
 
                     var NewsFromDb = await _unitOfWork.News.GetAsync(m => m.Id == model.News.Id);
 
-                    if (files.Count > 0)
+                    string imageName = "noimage.png";
+                    if (model.News.ImageUpload != null)
                     {
-                        //files has been uploaded
-                        var uploads = Path.Combine(webRootPath, "images");
-                        var extension = Path.GetExtension(files[0].FileName);
-
-                        using (var filesStream = new FileStream(Path.Combine(uploads, model.News.Id + DateTime.Now.Ticks.ToString() + extension), FileMode.Create))
-                        {
-                            files[0].CopyTo(filesStream);
-                        }
-                        NewsFromDb.Image = @"\images\" + model.News.Id + extension;
-                    }
-                    else
-                    {
-
-                        var uploads = Path.Combine(webRootPath, @"images\" + SD.DefaultItemImage);
-                        System.IO.File.Copy(uploads, webRootPath + @"\images\" + model.News.Id+ DateTime.Now.Ticks.ToString() + ".png");
-                        NewsFromDb.Image = @"\images\" + model.News.Id + DateTime.Now.Ticks.ToString() + ".png";
+                        var cat = await _unitOfWork.Categories.GetAsync(x => model.News.CategoryId == x.Id);
+                        string uploadsDir = Path.Combine(_hostingEnvironment.WebRootPath, "media/news/" + cat.Name);
+                        imageName = Guid.NewGuid().ToString() + "_" + model.News.ImageUpload.FileName;
+                        string filePath = Path.Combine(uploadsDir, imageName);
+                        FileStream fs = new FileStream(filePath, FileMode.Create);
+                        await model.News.ImageUpload.CopyToAsync(fs);
+                        fs.Close();
                     }
 
 
+                    model.News.Image = imageName;
+                    await _unitOfWork.News.CreateAsync(model.News);
                     await _unitOfWork.Complete();
                     return RedirectToAction(nameof(Index));
                 }
@@ -208,38 +200,37 @@ namespace NewsSite.Areas.Admin.Controllers
 
             //Work on the image saving section
 
-            string webRootPath = _hostingEnvironment.WebRootPath;
-            var files = HttpContext.Request.Form.Files;
+            if (NewsVm.News.ImageUpload != null)
+            {
+                var cat = await _unitOfWork.Categories.GetAsync(x => x.Id == NewsVm.News.CategoryId);
+
+                string uploadsDir = Path.Combine(_hostingEnvironment.WebRootPath, "media/News/" + cat.Name);
+
+                if (!string.Equals(NewsVm.News.Image, "noimage.png"))
+                {
+                    string oldImagePath = Path.Combine(uploadsDir, NewsVm.News.Image);
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+                }
+
+                string imageName = Guid.NewGuid().ToString() + "_" + NewsVm.News.ImageUpload.FileName;
+                string filePath = Path.Combine(uploadsDir, imageName);
+                FileStream fs = new FileStream(filePath, FileMode.Create);
+                await NewsVm.News.ImageUpload.CopyToAsync(fs);
+                fs.Close();
+                NewsVm.News.Image = imageName;
+            }
 
             var NewsFromDb = await _unitOfWork.News.GetAsync(m => m.Id == NewsVm.News.Id);
 
-            if (files.Count > 0)
-            {
-                //New Image has been uploaded
-                var uploads = Path.Combine(webRootPath, "images");
-                var extension_new = Path.GetExtension(files[0].FileName);
-
-                //Delete the original file
-                var imagePath = Path.Combine(webRootPath, NewsFromDb.Image.TrimStart('\\'));
-
-                if (System.IO.File.Exists(imagePath))
-                {
-                    System.IO.File.Delete(imagePath);
-                }
-
-                //we will upload the new file
-                using (var filesStream = new FileStream(Path.Combine(uploads, NewsVm.News.Id + DateTime.Now.Ticks.ToString() + extension_new), FileMode.Create))
-                {
-                    files[0].CopyTo(filesStream);
-                }
-                NewsFromDb.Image = @"\images\" + NewsVm.News.Id+ DateTime.Now.Ticks.ToString() + extension_new;
-                // datetime to prevent browser caching
-            }
 
             NewsFromDb.Title = NewsVm.News.Title;
             NewsFromDb.Description = NewsVm.News.Description;
             NewsFromDb.NewsDate = NewsVm.News.NewsDate;
             NewsFromDb.CategoryId = NewsVm.News.CategoryId;
+            NewsFromDb.Image = NewsVm.News.Image;
 
 
 
@@ -289,18 +280,20 @@ namespace NewsSite.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            string webRootPath = _hostingEnvironment.WebRootPath;
-            News News = await _unitOfWork.News.GetAsync(m => m.Id == id);
+            News News = await _unitOfWork.News.GetAsync(m => m.Id == id, includeProperties: "Category");
 
             if (News != null)
             {
-                var imagePath = Path.Combine(webRootPath, News.Image.TrimStart('\\'));
-
-                if (System.IO.File.Exists(imagePath))
+                if (!string.Equals(News.Image, "noimage.png"))
                 {
-                    System.IO.File.Delete(imagePath);
+                    string uploadsDir = Path.Combine(_hostingEnvironment.WebRootPath, "media/news/" + News.Category.Name);
+                    string oldImagePath = Path.Combine(uploadsDir, News.Image);
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
                 }
-               await _unitOfWork.News.RemoveAsync(News);
+                await _unitOfWork.News.RemoveAsync(News);
                await _unitOfWork.Complete();
 
             }

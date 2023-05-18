@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NewsSite.Data;
@@ -26,10 +27,11 @@ namespace NewsSite.Areas.Admin.Controllers
         //}
 
         private readonly IUnitOfWork _unitOfWork;
-
-        public CategoryController(IUnitOfWork unitOfWork)
+        private readonly IWebHostEnvironment webHostEnvironment;
+        public CategoryController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
         {
             _unitOfWork = unitOfWork;
+            this.webHostEnvironment = webHostEnvironment;
         }
 
         //GET 
@@ -74,6 +76,9 @@ namespace NewsSite.Areas.Admin.Controllers
                 await _unitOfWork.Categories.CreateAsync(category);
                 await _unitOfWork.Complete();
 
+                string uploadsDir = Path.Combine(webHostEnvironment.WebRootPath, "media/news/" + category.Name);
+                Directory.CreateDirectory(uploadsDir);
+
                 return RedirectToAction(nameof(Index));
             }
             return View(category);
@@ -102,9 +107,14 @@ namespace NewsSite.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
+                var oldCategory = await _unitOfWork.Categories.GetAsync(x => x.Id == category.Id,false);
+                string oldDir = Path.Combine(webHostEnvironment.WebRootPath, "media/news/" + oldCategory.Name);
+
                 await _unitOfWork.Categories.UpdateAsync(category);
 
                 //await _dbCategory.SaveAsync(); // already done on the updateasync
+                var newDir = Path.Combine(webHostEnvironment.WebRootPath, "media/news/" + category.Name);
+                Directory.Move(oldDir, newDir);
 
                 return RedirectToAction(nameof(Index));
             }
@@ -138,9 +148,12 @@ namespace NewsSite.Areas.Admin.Controllers
             {
                 return View();
             }
+            string uploadsDir = Path.Combine(webHostEnvironment.WebRootPath, "media/news/" + category.Name);
             await _unitOfWork.Categories.RemoveAsync(category);
             //await _dbCategory.SaveAsync(); // already done on the removeasync
             await _unitOfWork.Complete();
+            System.IO.DirectoryInfo di = new DirectoryInfo(uploadsDir);
+            di.Delete(true);
 
             return RedirectToAction(nameof(Index));
         }

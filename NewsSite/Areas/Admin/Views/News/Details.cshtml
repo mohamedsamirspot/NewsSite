@@ -50,7 +50,15 @@
         </div>
         <div class="col-1"></div>
         <div class="col-3">
-            <img src="@Model.News.Image" width="100%" style="border-radius:5px;border:1px solid #bbb9b9;" />
+            @if (@Model.News.Image == "noimage.png")
+            {
+                <img src="~/media/News/@Model.News.Image" width="100" alt="" style="border-radius:5px;border:1px solid #bbb9b9;" />
+            }
+            else
+            {
+                <img src="~/media/News/@Model.News.Category.Name/@Model.News.Image" width="100" alt="" style="border-radius:5px;border:1px solid #bbb9b9;" />
+
+            }
         </div>
         <div class="col-8">
             <div class="col-8 offset-4">

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NewsSite.Utility;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -17,7 +18,6 @@ namespace NewsSite.Models
         [Display(Name = "Date")]
         public DateTime NewsDate { get; set; } = DateTime.Now;
 
-        public string Image { get; set; }
 
         [Required]
         [Display(Name = "Category")]
@@ -25,6 +25,11 @@ namespace NewsSite.Models
 
         [ForeignKey("CategoryId")]
         public virtual Category Category { get; set; }
+        public string Image { get; set; }
+
+        [NotMapped]
+        [FileExtension]
+        public IFormFile ImageUpload { get; set; }
 
 
     }

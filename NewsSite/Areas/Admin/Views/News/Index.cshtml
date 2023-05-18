@@ -69,7 +69,16 @@
                                 @Html.DisplayFor(m => item.Category.Name)
                             </td>
                             <td>
-                                <img src="@item.Image" width="50" />
+                                @if (@item.Image == "noimage.png")
+                                {
+                                    <img src="~/media/News/@item.Image" width="100" alt="" />
+
+                                }
+                                else
+                                {
+                                    <img src="~/media/News/@item.Category.Name/@item.Image" width="100" alt="" />
+
+                                }
                             </td>
                             <td>
                                 <partial name="_TableButtonPartial" model="item.Id" />
