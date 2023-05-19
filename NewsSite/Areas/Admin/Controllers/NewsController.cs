@@ -204,7 +204,7 @@ namespace NewsSite.Areas.Admin.Controllers
             {
                 var cat = await _unitOfWork.Categories.GetAsync(x => x.Id == NewsVm.News.CategoryId);
 
-                string uploadsDir = Path.Combine(_hostingEnvironment.WebRootPath, "media/News/" + cat.Name);
+                string uploadsDir = Path.Combine(_hostingEnvironment.WebRootPath, "media/news/" + cat.Name);
 
                 if (!string.Equals(NewsVm.News.Image, "noimage.png"))
                 {
